@@ -317,11 +317,17 @@ const getStatusIcon = (status) => {
                           <h3 className={`font-semibold text-gray-900 dark:text-white mb-1 ${
                             task.status === "done" ? "line-through opacity-60" : ""
                           }`}>
-                            {task.title}
+{task.title}
                           </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Project ID: {task.projectId}
-                          </p>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                              <ApperIcon name="User" size={12} />
+                              <span>Assigned to: {task.assignedTo}</span>
+                            </div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              Project ID: {task.projectId}
+                            </p>
+                          </div>
                         </div>
                         
                         <div className="flex items-center gap-2">

@@ -262,11 +262,17 @@ const KanbanBoard = ({ tasks, onTaskUpdate, projectId = null }) => {
                                     {activeTimers.has(task.Id) ? "Stop" : "Start"}
                                   </Button>
                                 </div>
+</div>
 
-                                <div className="text-xs text-gray-500 dark:text-gray-400">
-                                  Project: {task.projectId}
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                                    <ApperIcon name="User" size={10} />
+                                    <span>{task.assignedTo}</span>
+                                  </div>
+                                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                                    Project: {task.projectId}
+                                  </div>
                                 </div>
-                              </div>
                             </Card>
                           </div>
                         )}

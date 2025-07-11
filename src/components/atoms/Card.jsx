@@ -1,11 +1,11 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import { cn } from "@/utils/cn";
 
 const Card = React.forwardRef(({ 
-  className, 
   children, 
-  hover = false,
-  gradient = false,
+  className, 
+  hover = false, 
+  gradient = false, 
   ...props 
 }, ref) => {
   return (
@@ -24,6 +24,6 @@ const Card = React.forwardRef(({
   );
 });
 
-Card.displayName = "Card";
+Card.displayName = 'Card';
 
 export default Card;

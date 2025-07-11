@@ -135,7 +135,7 @@ isOpen={isOpen}
       title={mode === "edit" ? "Edit Client" : "Add New Client"}
       size="md"
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+<form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
         {/* Name Field */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -230,14 +230,14 @@ isOpen={isOpen}
           </select>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-3 pt-4">
+{/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-3 pt-4">
           <Button
             type="button"
             variant="outline"
             onClick={handleClose}
             disabled={loading}
-            className="flex-1"
+            className="flex-1 order-2 sm:order-1"
           >
             Cancel
           </Button>
@@ -245,9 +245,9 @@ isOpen={isOpen}
             type="submit"
             variant="primary"
             disabled={loading}
-            className="flex-1"
+            className="flex-1 order-1 sm:order-2"
           >
-{loading ? (
+            {loading ? (
               <>
                 <ApperIcon name="Loader2" size={16} className="mr-2 animate-spin" />
                 {mode === "edit" ? "Updating..." : "Creating..."}

@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import Modal from "@/components/atoms/Modal";
-import Button from "@/components/atoms/Button";
-import Input from "@/components/atoms/Input";
-import Card from "@/components/atoms/Card";
 import ApperIcon from "@/components/ApperIcon";
+import Button from "@/components/atoms/Button";
+import Card from "@/components/atoms/Card";
+import Input from "@/components/atoms/Input";
+import Modal from "@/components/atoms/Modal";
 import { getAllProjects } from "@/services/api/projectService";
 
 const InvoiceModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
@@ -194,7 +194,7 @@ try {
       title={initialData ? "Edit Invoice" : "Create New Invoice"}
       size="xl"
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
+<form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
         {/* Project Selection */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -224,7 +224,7 @@ try {
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Due Date *
           </label>
-          <Input
+<Input
             type="date"
             name="dueDate"
             value={formData.dueDate}
@@ -236,39 +236,47 @@ try {
           )}
         </div>
 
-        {/* Status */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Status
-          </label>
-          <select
-            name="status"
-            value={formData.status}
-            onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
-          >
-            <option value="draft">Draft</option>
-            <option value="sent">Sent</option>
-            <option value="paid">Paid</option>
-            <option value="overdue">Overdue</option>
-          </select>
-</div>
-
-        {/* Payment Date - Only show if status is paid */}
-        {formData.status === 'paid' && (
+        {/* Status and Payment Date Row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+          {/* Status */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Payment Date
+              Status
             </label>
-            <Input
-              type="date"
-              name="paymentDate"
-              value={formData.paymentDate}
+            <select
+              name="status"
+              value={formData.status}
               onChange={handleInputChange}
-              className="w-full"
-              max={new Date().toISOString().split('T')[0]}
-            />
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="draft">Draft</option>
+              <option value="sent">Sent</option>
+              <option value="paid">Paid</option>
+              <option value="overdue">Overdue</option>
+            </select>
           </div>
+
+          {/* Payment Date - Only show if status is paid */}
+          {formData.status === 'paid' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Payment Date
+              </label>
+              <Input
+                type="date"
+                name="paymentDate"
+                value={formData.paymentDate}
+                onChange={handleInputChange}
+                className="w-full"
+                max={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+          )}
+        </div>
+
+{/* Spacer for when payment date is not shown */}
+        {formData.status !== 'paid' && (
+          <div></div>
         )}
 
         {/* Line Items */}
@@ -288,11 +296,11 @@ try {
             </Button>
           </div>
           
-          <div className="space-y-3">
+<div className="space-y-3">
             {formData.lineItems.map((item, index) => (
-              <Card key={index} className="p-4">
-                <div className="flex items-start gap-3">
-                  <div className="flex-1">
+              <Card key={index} className="p-3 sm:p-4">
+                <div className="flex flex-col sm:flex-row items-start gap-3">
+                  <div className="flex-1 w-full">
                     <Input
                       placeholder="Item description..."
                       value={item.description}
@@ -303,31 +311,33 @@ try {
                       <p className="text-sm text-red-600 dark:text-red-400">{errors[`lineItem_${index}_description`]}</p>
                     )}
                   </div>
-                  <div className="w-32">
-                    <Input
-                      type="number"
-                      placeholder="Amount"
-                      value={item.amount}
-                      onChange={(e) => handleLineItemChange(index, 'amount', e.target.value)}
-                      min="0"
-                      step="0.01"
-                      className="mb-2"
-                    />
-                    {errors[`lineItem_${index}_amount`] && (
-                      <p className="text-sm text-red-600 dark:text-red-400">{errors[`lineItem_${index}_amount`]}</p>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <div className="w-full sm:w-32">
+                      <Input
+                        type="number"
+                        placeholder="Amount"
+                        value={item.amount}
+                        onChange={(e) => handleLineItemChange(index, 'amount', e.target.value)}
+                        min="0"
+                        step="0.01"
+                        className="mb-2"
+                      />
+                      {errors[`lineItem_${index}_amount`] && (
+                        <p className="text-sm text-red-600 dark:text-red-400">{errors[`lineItem_${index}_amount`]}</p>
+                      )}
+                    </div>
+                    {formData.lineItems.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeLineItem(index)}
+                        className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 flex-shrink-0"
+                      >
+                        <ApperIcon name="Trash2" size={16} />
+                      </Button>
                     )}
                   </div>
-                  {formData.lineItems.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeLineItem(index)}
-                      className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                    >
-                      <ApperIcon name="Trash2" size={16} />
-                    </Button>
-                  )}
                 </div>
               </Card>
             ))}
@@ -350,13 +360,14 @@ try {
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+{/* Actions */}
+        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
           <Button
             type="button"
             variant="outline"
             onClick={onClose}
             disabled={isSubmitting}
+            className="order-2 sm:order-1"
           >
             Cancel
           </Button>
@@ -364,6 +375,7 @@ try {
             type="submit"
             variant="primary"
             disabled={isSubmitting}
+            className="order-1 sm:order-2"
           >
             {isSubmitting ? (
               <>

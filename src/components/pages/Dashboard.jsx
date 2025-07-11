@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 import DashboardStats from "@/components/organisms/DashboardStats";
 import RecentActivity from "@/components/organisms/RecentActivity";
 import QuickActions from "@/components/organisms/QuickActions";
@@ -14,6 +15,7 @@ const Dashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { user } = useSelector((state) => state.user);
 
   const loadDashboardData = async () => {
     try {
@@ -22,6 +24,7 @@ const Dashboard = () => {
       const dashboardData = await getDashboardData();
       setData(dashboardData);
     } catch (err) {
+      console.error("Dashboard loading error:", err);
       setError("Failed to load dashboard data. Please try again.");
       toast.error("Failed to load dashboard data");
     } finally {
@@ -31,6 +34,14 @@ const Dashboard = () => {
 
   useEffect(() => {
     loadDashboardData();
+    
+    // Set up automatic refresh every 30 seconds for real-time updates
+    const intervalId = setInterval(() => {
+      loadDashboardData();
+    }, 30000);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   if (loading) {
@@ -51,6 +62,16 @@ const Dashboard = () => {
         onAction={loadDashboardData}
       />
     );
+  }
+
+  // Get user's first name for personalized greeting
+  const firstName = user?.firstName || user?.name?.split(' ')[0] || 'there';
+  const currentHour = new Date().getHours();
+  let greeting = 'Good morning';
+  if (currentHour >= 12 && currentHour < 17) {
+    greeting = 'Good afternoon';
+  } else if (currentHour >= 17) {
+    greeting = 'Good evening';
   }
 
   return (
@@ -84,9 +105,9 @@ const Dashboard = () => {
       >
         <div className="flex items-center justify-between">
           <div className="space-y-2">
-            <h2 className="text-xl font-semibold">Good morning, John! 👋</h2>
+            <h2 className="text-xl font-semibold">{greeting}, {firstName}! 👋</h2>
             <p className="text-primary-100">
-              You have 3 projects due this week and 5 pending invoices to review.
+              You have {data.summary.activeProjects} active projects and {data.summary.pendingTasks} pending tasks to review.
             </p>
           </div>
           <div className="hidden sm:block">
@@ -103,7 +124,7 @@ const Dashboard = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <DashboardStats />
+        <DashboardStats dashboardData={data} />
       </motion.div>
 
       {/* Content Grid */}
@@ -113,7 +134,7 @@ const Dashboard = () => {
         transition={{ duration: 0.5, delay: 0.3 }}
         className="grid grid-cols-1 lg:grid-cols-2 gap-6"
       >
-        <RecentActivity />
+        <RecentActivity dashboardData={data} />
         <QuickActions />
       </motion.div>
     </div>

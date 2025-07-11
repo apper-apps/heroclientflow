@@ -20,16 +20,27 @@ export const stopTimer = async (taskId) => {
 };
 
 export const getActiveTimer = async (taskId) => {
-  await new Promise(resolve => setTimeout(resolve, 100));
-  
-  const tasks = await getAllTasks();
-  const task = tasks.find(t => t.Id === parseInt(taskId));
-  
-  if (!task) {
-    throw new Error("Task not found");
-  }
+  try {
+    const tasks = await getAllTasks();
+    const task = tasks.find(t => t.Id === parseInt(taskId));
+    
+    if (!task) {
+      throw new Error("Task not found");
+    }
 
-  return task.timeTracking?.activeTimer || null;
+    // Parse activeTimer from database field
+    if (task.activeTimer) {
+      try {
+        return JSON.parse(task.activeTimer);
+      } catch (e) {
+        return null;
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    throw new Error(`Failed to get active timer: ${error.message}`);
+  }
 };
 
 export const getTimeLogs = async (taskId) => {
@@ -42,8 +53,6 @@ export const getTimeLogs = async (taskId) => {
 };
 
 export const getProjectTimeTracking = async (projectId) => {
-  await new Promise(resolve => setTimeout(resolve, 200));
-  
   try {
     const tasks = await getAllTasks();
     const projectTasks = tasks.filter(t => t.projectId === String(projectId));
@@ -54,32 +63,23 @@ export const getProjectTimeTracking = async (projectId) => {
     const timeLogs = [];
 
     projectTasks.forEach(task => {
-      if (task.timeTracking) {
-        totalTime += task.timeTracking.totalTime || 0;
-        
-        if (task.timeTracking.activeTimer) {
-          activeTimers++;
-        }
-        
-        if (task.timeTracking.timeLogs) {
-          totalEntries += task.timeTracking.timeLogs.length;
-          timeLogs.push(...task.timeTracking.timeLogs.map(log => ({
-            ...log,
-            taskId: task.Id,
-            taskTitle: task.title
-          })));
-        }
+      // Use totalTime from database field
+      totalTime += parseInt(task.totalTime) || 0;
+      
+      // Check if activeTimer field has content
+      if (task.activeTimer) {
+        activeTimers++;
       }
+      
+      // Note: timeLogs would come from a separate time logs table in a real implementation
+      // For now, we'll use empty array since we don't have a dedicated time logs table
     });
-
-    // Sort time logs by date (newest first)
-    timeLogs.sort((a, b) => new Date(b.endTime) - new Date(a.endTime));
 
     return {
       totalTime,
       activeTimers,
       totalEntries,
-      timeLogs: timeLogs.slice(0, 10) // Return last 10 entries
+      timeLogs: [] // Empty for now - would be populated from time logs table
     };
   } catch (error) {
     throw new Error(`Failed to get project time tracking: ${error.message}`);
@@ -87,8 +87,6 @@ export const getProjectTimeTracking = async (projectId) => {
 };
 
 export const getAllTimeTracking = async () => {
-  await new Promise(resolve => setTimeout(resolve, 200));
-  
   try {
     const tasks = await getAllTasks();
     
@@ -100,27 +98,27 @@ export const getAllTimeTracking = async () => {
     };
 
     tasks.forEach(task => {
-      if (task.timeTracking) {
-        summary.totalTime += task.timeTracking.totalTime || 0;
-        
-        if (task.timeTracking.activeTimer) {
-          summary.activeTimers++;
-        }
-        
-        if (task.timeTracking.timeLogs) {
-          summary.totalEntries += task.timeTracking.timeLogs.length;
-        }
+      // Use totalTime from database field
+      const taskTotalTime = parseInt(task.totalTime) || 0;
+      summary.totalTime += taskTotalTime;
+      
+      // Check if activeTimer field has content
+      if (task.activeTimer) {
+        summary.activeTimers++;
+      }
+      
+      // Note: totalEntries would come from a separate time logs table
+      // For now, we'll use 0 since we don't have a dedicated time logs table
 
-        if (task.timeTracking.totalTime > 0 || task.timeTracking.activeTimer) {
-          summary.taskBreakdown.push({
-            taskId: task.Id,
-            taskTitle: task.title,
-            projectId: task.projectId,
-            totalTime: task.timeTracking.totalTime || 0,
-            hasActiveTimer: !!task.timeTracking.activeTimer,
-            entryCount: task.timeTracking.timeLogs?.length || 0
-          });
-        }
+      if (taskTotalTime > 0 || task.activeTimer) {
+        summary.taskBreakdown.push({
+          taskId: task.Id,
+          taskTitle: task.title,
+          projectId: task.projectId,
+          totalTime: taskTotalTime,
+          hasActiveTimer: !!task.activeTimer,
+          entryCount: 0 // Would be populated from time logs table
+        });
       }
     });
 

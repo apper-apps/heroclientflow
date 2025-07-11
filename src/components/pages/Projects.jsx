@@ -26,7 +26,7 @@ const Projects = () => {
 const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
 
-  const loadProjects = async () => {
+const loadProjects = async () => {
     try {
       setLoading(true);
       setError("");
@@ -34,11 +34,13 @@ const [isModalOpen, setIsModalOpen] = useState(false);
         getAllProjects(),
         getAllClients()
       ]);
-      setProjects(projectData);
-      setClients(clientData);
+      setProjects(projectData || []);
+      setClients(clientData || []);
     } catch (err) {
       setError("Failed to load data. Please try again.");
       toast.error("Failed to load data");
+      setProjects([]);
+      setClients([]);
     } finally {
       setLoading(false);
     }

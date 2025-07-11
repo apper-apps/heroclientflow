@@ -33,12 +33,11 @@ const ClientDetail = () => {
       ]);
       
       setClient(clientData);
-      
-      // Filter projects for this client
+// Filter projects for this client
       const clientProjects = allProjects.filter(project => 
         parseInt(project.clientId) === parseInt(id)
       );
-      setProjects(clientProjects);
+      setProjects(clientProjects || []);
     } catch (err) {
       setError("Failed to load client details. Please try again.");
       toast.error("Failed to load client details");

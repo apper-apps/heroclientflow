@@ -135,7 +135,7 @@ useEffect(() => {
 
 const getProjectName = (projectId) => {
     const project = projects.find(p => p.Id === parseInt(projectId));
-    return project ? project.name : 'Unknown Project';
+    return project ? project.Name : 'Unknown Project';
   };
 
   const filteredTasks = tasks.filter(task => {
@@ -300,10 +300,10 @@ description="Create your first task to start tracking your work"
             onChange={(e) => setProjectFilter(e.target.value)}
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
-            <option value="all">All Projects</option>
+<option value="all">All Projects</option>
             {projects.map(project => (
               <option key={project.Id} value={project.Id}>
-                {project.name}
+                {project.Name}
               </option>
             ))}
           </select>

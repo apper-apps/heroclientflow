@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Modal from '@/components/atoms/Modal';
 import Button from '@/components/atoms/Button';
 import Input from '@/components/atoms/Input';
 import Card from '@/components/atoms/Card';
 import ApperIcon from '@/components/ApperIcon';
+import { getAllProjects } from '@/services/api/projectService';
 
 const TaskModal = ({ isOpen, onClose, onSubmit, title = "Add New Task" }) => {
   const [formData, setFormData] = useState({
@@ -14,12 +15,12 @@ const TaskModal = ({ isOpen, onClose, onSubmit, title = "Add New Task" }) => {
     status: 'todo',
     dueDate: '',
     assignedTo: '',
-    projectId: 1
+    projectId: ''
   });
-
+const [projects, setProjects] = useState([]);
+  const [loadingProjects, setLoadingProjects] = useState(true);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -48,7 +49,11 @@ const TaskModal = ({ isOpen, onClose, onSubmit, title = "Add New Task" }) => {
     }
     
     if (!formData.assignedTo.trim()) {
-      newErrors.assignedTo = 'Assigned user is required';
+newErrors.assignedTo = 'Assigned user is required';
+    }
+
+    if (!formData.projectId) {
+      newErrors.projectId = 'Project selection is required';
     }
 
     setErrors(newErrors);
@@ -73,6 +78,23 @@ const TaskModal = ({ isOpen, onClose, onSubmit, title = "Add New Task" }) => {
       setIsSubmitting(false);
     }
   };
+const loadProjects = async () => {
+    try {
+      setLoadingProjects(true);
+      const projectData = await getAllProjects();
+      setProjects(projectData);
+    } catch (error) {
+      console.error('Error loading projects:', error);
+    } finally {
+      setLoadingProjects(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      loadProjects();
+    }
+  }, [isOpen]);
 
   const handleClose = () => {
     setFormData({
@@ -82,7 +104,7 @@ const TaskModal = ({ isOpen, onClose, onSubmit, title = "Add New Task" }) => {
       status: 'todo',
       dueDate: '',
       assignedTo: '',
-      projectId: 1
+      projectId: ''
     });
     setErrors({});
     setIsSubmitting(false);
@@ -198,6 +220,33 @@ const TaskModal = ({ isOpen, onClose, onSubmit, title = "Add New Task" }) => {
                 {errors.assignedTo && (
                   <p className="mt-1 text-sm text-red-600 dark:text-red-400">
                     {errors.assignedTo}
+                  </p>
+)}
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Project *
+                </label>
+                <select
+                  name="projectId"
+                  value={formData.projectId}
+                  onChange={handleChange}
+                  disabled={loadingProjects}
+                  className={`w-full px-3 py-2 border ${errors.projectId ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent ${loadingProjects ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <option value="">
+                    {loadingProjects ? 'Loading projects...' : 'Select a project'}
+                  </option>
+                  {projects.map(project => (
+                    <option key={project.Id} value={project.Id}>
+                      {project.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.projectId && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {errors.projectId}
                   </p>
                 )}
               </div>

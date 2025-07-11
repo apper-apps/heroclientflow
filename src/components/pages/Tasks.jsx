@@ -13,14 +13,17 @@ import SearchBar from "@/components/molecules/SearchBar";
 import TaskModal from "@/components/molecules/TaskModal";
 import { getAllTasks, createTask } from "@/services/api/taskService";
 import { startTimer, stopTimer } from "@/services/api/timeTrackingService";
+import { getAllProjects } from "@/services/api/projectService";
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [projectFilter, setProjectFilter] = useState("all");
   const [viewMode, setViewMode] = useState("list");
   const [activeTimers, setActiveTimers] = useState(new Map());
   const [currentTime, setCurrentTime] = useState(Date.now());
@@ -39,6 +42,15 @@ const loadTasks = async () => {
     }
   };
 
+  const loadProjects = async () => {
+    try {
+      const projectData = await getAllProjects();
+      setProjects(projectData);
+    } catch (err) {
+      console.error("Failed to load projects:", err);
+    }
+  };
+
   const handleCreateTask = async (taskData) => {
     try {
       await createTask(taskData);
@@ -50,8 +62,9 @@ const loadTasks = async () => {
     }
   };
 
-  useEffect(() => {
+useEffect(() => {
     loadTasks();
+    loadProjects();
   }, []);
 
   useEffect(() => {
@@ -120,11 +133,17 @@ const loadTasks = async () => {
     return currentTime - new Date(timer.startTime).getTime();
   };
 
+const getProjectName = (projectId) => {
+    const project = projects.find(p => p.Id === parseInt(projectId));
+    return project ? project.name : 'Unknown Project';
+  };
+
   const filteredTasks = tasks.filter(task => {
     const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesPriority = priorityFilter === "all" || task.priority === priorityFilter;
     const matchesStatus = statusFilter === "all" || task.status === statusFilter;
-    return matchesSearch && matchesPriority && matchesStatus;
+    const matchesProject = projectFilter === "all" || task.projectId === parseInt(projectFilter);
+    return matchesSearch && matchesPriority && matchesStatus && matchesProject;
   });
 
   const getPriorityVariant = (priority) => {
@@ -252,8 +271,8 @@ description="Create your first task to start tracking your work"
           className="flex-1"
         />
         
-        <div className="flex gap-2">
-<select
+<div className="flex gap-2">
+          <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -275,12 +294,25 @@ description="Create your first task to start tracking your work"
             <option value="medium">Medium</option>
             <option value="high">High</option>
           </select>
+
+          <select
+            value={projectFilter}
+            onChange={(e) => setProjectFilter(e.target.value)}
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="all">All Projects</option>
+            {projects.map(project => (
+              <option key={project.Id} value={project.Id}>
+                {project.name}
+              </option>
+            ))}
+          </select>
           
           <Button variant="outline" size="sm">
             <ApperIcon name="Download" size={16} className="mr-2" />
             Export
           </Button>
-</div>
+        </div>
       </motion.div>
 
       {/* Results Count */}
@@ -337,9 +369,10 @@ description="Create your first task to start tracking your work"
                               <ApperIcon name="User" size={12} />
                               <span>Assigned to: {task.assignedTo}</span>
                             </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              Project ID: {task.projectId}
-                            </p>
+<div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                              <ApperIcon name="Folder" size={12} />
+                              <span>Project: {getProjectName(task.projectId)}</span>
+                            </div>
                           </div>
                         </div>
                         
@@ -447,10 +480,11 @@ description="Create your first task to start tracking your work"
                 description={`No tasks match your current filters. Try adjusting your search criteria.`}
                 icon="Search"
                 actionLabel="Clear Filters"
-                onAction={() => {
+onAction={() => {
                   setSearchTerm("");
                   setPriorityFilter("all");
                   setStatusFilter("all");
+                  setProjectFilter("all");
                 }}
               />
             </motion.div>

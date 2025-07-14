@@ -1,7 +1,7 @@
 import React, { forwardRef } from "react";
 import { cn } from "@/utils/cn";
 
-const Card = React.forwardRef(({ 
+const Card = forwardRef(({ 
   children, 
   className, 
   hover = false, 
@@ -24,6 +24,8 @@ const Card = React.forwardRef(({
   );
 });
 
-Card.displayName = 'Card';
+Card.displayName = "Card";
 
 export default Card;
+
+Card.displayName = 'Card';

@@ -115,8 +115,8 @@ const TimeTracking = () => {
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-white">Total Time</h3>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {formatDuration(timeData.totalTime)}
+<p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {formatDuration(timeData.totalTime || 0)}
                 </p>
               </div>
             </div>
@@ -136,7 +136,7 @@ const TimeTracking = () => {
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-white">Active Timers</h3>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {timeData.activeTimers}
+{timeData.activeTimers || 0}
                 </p>
               </div>
             </div>
@@ -156,7 +156,7 @@ const TimeTracking = () => {
               <div>
                 <h3 className="font-semibold text-gray-900 dark:text-white">Time Entries</h3>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {timeData.totalEntries}
+{timeData.totalEntries || 0}
                 </p>
               </div>
             </div>
@@ -175,13 +175,13 @@ const TimeTracking = () => {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Task Breakdown
             </h3>
-            <Badge variant="secondary">
-              {timeData.taskBreakdown.length} tasks
+<Badge variant="secondary">
+              {(timeData.taskBreakdown || []).length} tasks
             </Badge>
           </div>
           
-          <div className="space-y-3">
-            {timeData.taskBreakdown.map((task, index) => (
+<div className="space-y-3">
+            {(timeData.taskBreakdown || []).map((task, index) => (
               <motion.div
                 key={task.taskId}
                 initial={{ opacity: 0, x: -20 }}

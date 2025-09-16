@@ -1,5 +1,4 @@
-import { startTaskTimer, stopTaskTimer, getTaskTimeLogs } from "@/services/api/taskService";
-import { getAllTasks } from "@/services/api/taskService";
+import { getAllTasks, getTaskTimeLogs, startTaskTimer, stopTaskTimer } from "@/services/api/taskService";
 
 export const startTimer = async (taskId) => {
   try {

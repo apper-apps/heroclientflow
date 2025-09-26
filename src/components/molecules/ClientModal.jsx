@@ -18,10 +18,10 @@ const [formData, setFormData] = useState({
   const [errors, setErrors] = useState({});
 
   // Initialize form data when client prop changes (for edit mode)
-  React.useEffect(() => {
+React.useEffect(() => {
     if (mode === "edit" && client) {
       setFormData({
-        name: client.name || "",
+        name: client.Name || client.name || "",
         email: client.email || "",
         company: client.company || "",
         notes: client.notes || "",

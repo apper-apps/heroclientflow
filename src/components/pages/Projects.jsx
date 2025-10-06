@@ -55,20 +55,26 @@ const loadProjects = async () => {
     setIsModalOpen(true);
   };
 
-  const handleProjectSubmit = async (projectData) => {
+const handleProjectSubmit = async (projectData) => {
     try {
       if (editingProject) {
         // Handle project update
+        // TODO: Implement updateProject service method when available
         await loadProjects();
         toast.success("Project updated successfully");
       } else {
         // Handle project creation
+        await createProject(projectData);
         await loadProjects();
         toast.success("Project created successfully");
       }
       setIsModalOpen(false);
       setEditingProject(null);
     } catch (error) {
+      const errorMessage = editingProject 
+        ? "Failed to update project. Please try again."
+        : "Failed to create project. Please try again.";
+      toast.error(errorMessage);
       throw error;
     }
   };

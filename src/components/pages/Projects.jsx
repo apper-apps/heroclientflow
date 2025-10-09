@@ -64,9 +64,8 @@ const handleProjectSubmit = async (projectData) => {
         toast.success("Project updated successfully");
       } else {
         // Handle project creation
-        await createProject(projectData);
+await createProject(projectData);
         await loadProjects();
-        toast.success("Project created successfully");
       }
       setIsModalOpen(false);
       setEditingProject(null);

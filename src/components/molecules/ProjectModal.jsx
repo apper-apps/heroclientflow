@@ -134,9 +134,11 @@ const ProjectModal = ({
         id: project?.id
       };
 
-      await onSubmit(projectData);
+await onSubmit(projectData);
       onClose();
-      toast.success(project ? 'Project updated successfully' : 'Project created successfully');
+      if (project) {
+        toast.success('Project updated successfully');
+      }
     } catch (error) {
       console.error('Failed to save project:', error);
       toast.error(error.message || 'Failed to save project');
